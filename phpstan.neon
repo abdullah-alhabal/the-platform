@@ -1,0 +1,16 @@
+parameters:
+    paths:
+        - app
+        - routes
+        - database
+        - config
+    level: 5
+    excludePaths:
+        analyse:
+            - vendor
+            - storage
+            - bootstrap/cache
+    ignoreErrors:
+        - '#Unsafe usage of new static#'
+        - '#Call to an undefined method App\\Models\\User::someDynamicMethod#'
+        - '#Access to an undefined property App\\Models\\User::some_property#'
