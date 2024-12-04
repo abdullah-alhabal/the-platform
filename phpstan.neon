@@ -1,16 +1,23 @@
 parameters:
+    level: 8
     paths:
         - app
-        - routes
-        - database
         - config
-    level: 5
+        - database
+        - routes
+        - tests
     excludePaths:
-        analyse:
-            - vendor
-            - storage
-            - bootstrap/cache
+        - app/Console/Kernel.php
+        - app/Exceptions/Handler.php
+        - app/Http/Middleware/Authenticate.php
+        - app/Http/Middleware/RedirectIfAuthenticated.php
+        - app/Http/Middleware/TrustHosts.php
+        - app/Http/Middleware/TrustProxies.php
+        - app/Http/Middleware/VerifyCsrfToken.php
+        - app/Providers/BroadcastServiceProvider.php
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        - '#Unsafe usage of new static#'
-        - '#Call to an undefined method App\\Models\\User::someDynamicMethod#'
-        - '#Access to an undefined property App\\Models\\User::some_property#'
+        - '#PHPDoc tag @var#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::validate\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::validated\(\)#'

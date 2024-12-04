@@ -12,7 +12,9 @@
         "php": "^8.2",
         "darkaonline/l5-swagger": "^8.6",
         "laravel/framework": "^11.31",
-        "laravel/tinker": "^2.9"
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "spatie/laravel-permission": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
@@ -20,7 +22,7 @@
         "fakerphp/faker": "^1.23",
         "friendsofphp/php-cs-fixer": "^3.65",
         "laravel/pail": "^1.1",
-        "laravel/pint": "^1.18",
+        "laravel/pint": "*",
         "laravel/pulse": "^1.2",
         "laravel/sail": "^1.26",
         "laravel/telescope": "^5.2",

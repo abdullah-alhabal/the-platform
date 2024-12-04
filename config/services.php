@@ -37,4 +37,34 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'frontend' => [
+        'url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/auth/google/callback',
+    ],
+
+    'firebase' => [
+        'project_id' => env('FIREBASE_PROJECT_ID'),
+        'client_email' => env('FIREBASE_CLIENT_EMAIL'),
+        'private_key' => env('FIREBASE_PRIVATE_KEY'),
+    ],
+
+    'countries' => [
+        'api_url' => env('COUNTRIES_API_URL', 'https://restcountries.com/v3.1'),
+        'fields' => env('COUNTRIES_API_FIELDS', 'name,flags'),
+    ],
+
+    'currency_exchange' => [
+        'api_url' => env('CURRENCY_EXCHANGE_API_URL', 'https://api.exchangerate-api.com/v4/latest'),
+        'api_key' => env('CURRENCY_EXCHANGE_API_KEY', ''),
+    ],
 ];

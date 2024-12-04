@@ -103,7 +103,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', env('APP_PREVIOUS_KEYS', ''))
+            explode(',', env('APP_PREVIOUS_KEYS', '')),
         ),
     ],
 
@@ -125,4 +125,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL is used to generate URLs for the frontend application.
+    |
+    */
+
+    'frontend_url' => env('APP_FRONTEND_URL', 'http://localhost'),
 ];
