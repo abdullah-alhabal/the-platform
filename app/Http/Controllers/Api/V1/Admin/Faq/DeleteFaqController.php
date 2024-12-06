@@ -12,13 +12,13 @@ use Illuminate\Http\JsonResponse;
 final class DeleteFaqController extends BaseApiV1Controller
 {
     public function __construct(
-        private readonly FaqService $service,
+        private readonly FaqService $faqService,
     ) {}
 
     public function __invoke(int $id): JsonResponse
     {
         try {
-            $this->service->delete($id);
+            $this->faqService->delete($id);
 
             return $this->successResponse([], 'FAQ deleted successfully.');
         } catch (Exception $e) {

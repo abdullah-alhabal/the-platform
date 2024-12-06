@@ -13,13 +13,13 @@ use Illuminate\Http\JsonResponse;
 final class CreateFaqController extends BaseApiV1Controller
 {
     public function __construct(
-        private readonly FaqService $service,
+        private readonly FaqService $faqService,
     ) {}
 
     public function __invoke(CreateFaqRequest $request): JsonResponse
     {
         try {
-            $faq = $this->service->create($request->validated());
+            $faq = $this->faqService->create($request->validated());
 
             return $this->successResponse($faq, 'FAQ created successfully.');
         } catch (Exception $e) {

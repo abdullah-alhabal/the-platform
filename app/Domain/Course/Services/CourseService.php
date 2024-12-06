@@ -2,144 +2,94 @@
 
 namespace App\Domain\Course\Services;
 
+use App\Domain\Course\DTOs\Course\CreateCourseDto;
+use App\Domain\Course\DTOs\Course\UpdateCourseDto;
 use App\Domain\Course\Models\Course;
-use App\Domain\Course\Interfaces\CourseRepositoryInterface;
-use App\Domain\Course\DTOs\CourseDTO;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Exception;
+use App\Domain\Course\Repositories\CourseRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CourseService
 {
-    protected CourseRepositoryInterface $courseRepository;
+    public function __construct(
+        private readonly CourseRepository $courseRepository
+    ) {}
 
-    public function __construct(CourseRepositoryInterface $courseRepository)
+    public function getAllCourses(array $filters = []): LengthAwarePaginator
     {
-        $this->courseRepository = $courseRepository;
+        return $this->courseRepository->getAll($filters);
     }
 
-    public function createCourse(array $data): Course
+    public function createCourse(CreateCourseDto $dto): Course
     {
-        try {
-            DB::beginTransaction();
-
-            // Handle thumbnail upload if present
-            if (isset($data['thumbnail']) && $data['thumbnail']->isValid()) {
-                $data['thumbnail'] = $this->uploadThumbnail($data['thumbnail']);
-            }
-
-            // Generate slug
-            $data['slug'] = Str::slug($data['title']);
-
-            // Create course
-            $course = $this->courseRepository->create($data);
-
-            DB::commit();
-
-            return $course;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return $this->courseRepository->create($dto->toArray());
     }
 
-    public function updateCourse(Course $course, array $data): bool
+    public function updateCourse(Course $course, UpdateCourseDto $dto): bool
     {
-        try {
-            DB::beginTransaction();
-
-            // Handle thumbnail update if present
-            if (isset($data['thumbnail']) && $data['thumbnail']->isValid()) {
-                // Delete old thumbnail
-                if ($course->thumbnail) {
-                    Storage::delete($course->thumbnail);
-                }
-                $data['thumbnail'] = $this->uploadThumbnail($data['thumbnail']);
-            }
-
-            // Update slug if title changed
-            if (isset($data['title']) && $data['title'] !== $course->title) {
-                $data['slug'] = Str::slug($data['title']);
-            }
-
-            // Update course
-            $updated = $this->courseRepository->update($course, $data);
-
-            DB::commit();
-
-            return $updated;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return $this->courseRepository->update($course, $dto->toArray());
     }
 
     public function deleteCourse(Course $course): bool
     {
-        try {
-            DB::beginTransaction();
+        return $this->courseRepository->delete($course);
+    }
 
-            // Delete thumbnail if exists
-            if ($course->thumbnail) {
-                Storage::delete($course->thumbnail);
-            }
+    public function getCourseDetails(Course $course): array
+    {
+        $stats = $this->courseRepository->getCourseStats($course);
+        $sections = $this->courseRepository->getCourseSections($course);
+        $ratings = $this->courseRepository->getCourseRatings($course);
 
-            // Delete course
-            $deleted = $this->courseRepository->delete($course);
-
-            DB::commit();
-
-            return $deleted;
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
+        return [
+            ...$course->toArray(),
+            'stats' => $stats,
+            'sections' => $sections,
+            'ratings' => $ratings,
+        ];
     }
 
     public function publishCourse(Course $course): bool
     {
-        // Validate if course can be published
+        // Validate course is ready for publishing
         if (!$this->canBePublished($course)) {
-            throw new Exception('Course cannot be published. Please ensure it has all required content.');
+            return false;
         }
 
-        return $this->courseRepository->updatePublishStatus($course, true);
+        return $this->courseRepository->update($course, ['is_published' => true]);
     }
 
     public function unpublishCourse(Course $course): bool
     {
-        return $this->courseRepository->updatePublishStatus($course, false);
+        return $this->courseRepository->update($course, ['is_published' => false]);
     }
 
-    public function getCourseDetails(Course $course): CourseDTO
+    public function searchCourses(string $query, array $filters = []): LengthAwarePaginator
     {
-        // Increment view count
-        $this->courseRepository->incrementViews($course);
-
-        // Get related courses
-        $relatedCourses = $this->courseRepository->getRelated($course);
-
-        // Transform to DTO
-        return new CourseDTO($course, $relatedCourses);
+        return $this->courseRepository->search($query, $filters);
     }
 
-    protected function uploadThumbnail($file): string
+    private function canBePublished(Course $course): bool
     {
-        $path = $file->store('course-thumbnails', 'public');
-        return Storage::url($path);
-    }
+        // Course must have at least one section
+        if ($course->sections()->count() === 0) {
+            return false;
+        }
 
-    protected function canBePublished(Course $course): bool
-    {
-        // Check if course has required content
-        return $course->sections()
-            ->whereHas('lessons', function ($query) {
-                $query->where('is_published', true);
-            })
-            ->exists()
-            && $course->title
-            && $course->description
-            && $course->price >= 0;
+        // Course must have at least one lesson
+        if ($course->lessons()->count() === 0) {
+            return false;
+        }
+
+        // Course must have a title, description, and price
+        if (empty($course->title) || empty($course->description) || $course->price === null) {
+            return false;
+        }
+
+        // Course must have requirements and learning outcomes
+        if (empty($course->requirements) || empty($course->learning_outcomes)) {
+            return false;
+        }
+
+        return true;
     }
 }

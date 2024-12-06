@@ -10,12 +10,9 @@ use App\Services\Setting\SettingService;
 
 final class UpdateSettingController extends Controller
 {
-    protected $service;
-
-    public function __construct(SettingService $service)
-    {
-        $this->service = $service;
-    }
+    public function __construct(
+        private readonly SettingService $service
+    ){}
 
     public function __invoke(UpdateSettingRequest $request)
     {

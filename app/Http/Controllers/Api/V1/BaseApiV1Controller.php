@@ -3,61 +3,77 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 
-abstract class BaseApiV1Controller extends Controller
+class BaseApiV1Controller extends Controller
 {
-    protected function successResponse($data = null, string $message = 'Success', int $code = 200): JsonResponse
+    use AuthorizesRequests;
+
+    protected function successResponse($data = null, string $message = 'Success', int $statusCode = 200): \Illuminate\Http\JsonResponse
     {
         return response()->json([
             'success' => true,
             'message' => $message,
             'data' => $data,
-        ], $code);
+        ], $statusCode);
     }
 
-    protected function errorResponse(string $message = 'Error', int $code = 400, $errors = null): JsonResponse
+    protected function errorResponse(string $message = 'Error', int $statusCode = 400): \Illuminate\Http\JsonResponse
     {
-        $response = [
+        return response()->json([
             'success' => false,
             'message' => $message,
-        ];
-
-        if ($errors !== null) {
-            $response['errors'] = $errors;
-        }
-
-        return response()->json($response, $code);
+        ], $statusCode);
     }
 
-    protected function createdResponse($data = null, string $message = 'Created successfully'): JsonResponse
+    protected function createdResponse($data = null, string $message = 'Created successfully'): \Illuminate\Http\JsonResponse
     {
         return $this->successResponse($data, $message, 201);
     }
 
-    protected function noContentResponse(string $message = 'Deleted successfully'): JsonResponse
+    protected function noContentResponse(): \Illuminate\Http\JsonResponse
     {
-        return $this->successResponse(null, $message, 204);
+        return response()->json(null, 204);
     }
 
-    protected function paginatedResponse($paginator, string $message = 'Success'): JsonResponse
+    protected function respondCreated(array $data): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'data' => $paginator->items(),
-            'meta' => [
-                'current_page' => $paginator->currentPage(),
-                'last_page' => $paginator->lastPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-            ],
-            'links' => [
-                'first' => $paginator->url(1),
-                'last' => $paginator->url($paginator->lastPage()),
-                'prev' => $paginator->previousPageUrl(),
-                'next' => $paginator->nextPageUrl(),
-            ],
-        ]);
+        return response()->json($data, 201);
+    }
+
+    protected function respondOk(array $data): JsonResponse
+    {
+        return response()->json($data, 200);
+    }
+
+    protected function respondNoContent(): JsonResponse
+    {
+        return response()->json(null, 204);
+    }
+
+    protected function respondError(string $message, int $statusCode = 400): JsonResponse
+    {
+        return response()->json(['error' => $message], $statusCode);
+    }
+
+    protected function respondNotFound(string $message = 'Resource not found'): JsonResponse
+    {
+        return $this->respondError($message, 404);
+    }
+
+    protected function respondUnauthorized(string $message = 'Unauthorized'): JsonResponse
+    {
+        return $this->respondError($message, 401);
+    }
+
+    protected function respondForbidden(string $message = 'Forbidden'): JsonResponse
+    {
+        return $this->respondError($message, 403);
+    }
+
+    protected function respondValidationError(array $errors): JsonResponse
+    {
+        return response()->json(['errors' => $errors], 422);
     }
 }

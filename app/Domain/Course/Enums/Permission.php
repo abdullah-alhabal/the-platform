@@ -70,6 +70,49 @@ enum Permission: string
     // Notifications
     case SHOW_NOTIFICATIONS = 'show_notifications';
 
+    // Admin permissions
+    case CREATE_ADMINS = 'create_admins';
+    case EDIT_ADMINS = 'edit_admins';
+    case DELETE_ADMINS = 'delete_admins';
+
+    // Teacher permissions
+    case VIEW_TEACHERS = 'view_teachers';
+    case CREATE_TEACHERS = 'create_teachers';
+    case EDIT_TEACHERS = 'edit_teachers';
+    case DELETE_TEACHERS = 'delete_teachers';
+
+    // Course permissions
+    case VIEW_COURSES = 'view_courses';
+    case CREATE_COURSES = 'create_courses';
+    case EDIT_COURSES = 'edit_courses';
+    case DELETE_COURSES = 'delete_courses';
+    case PUBLISH_COURSES = 'publish_courses';
+
+    // Enrollment permissions
+    case VIEW_ENROLLMENTS = 'view_enrollments';
+    case CREATE_ENROLLMENTS = 'create_enrollments';
+    case CANCEL_ENROLLMENTS = 'cancel_enrollments';
+    case REFUND_ENROLLMENTS = 'refund_enrollments';
+
+    // Rating permissions
+    case VIEW_RATINGS = 'view_ratings';
+    case CREATE_RATINGS = 'create_ratings';
+    case EDIT_RATINGS = 'edit_ratings';
+    case DELETE_RATINGS = 'delete_ratings';
+    case REPLY_TO_RATINGS = 'reply_to_ratings';
+
+    // Lesson permissions
+    case VIEW_LESSONS = 'view_lessons';
+    case CREATE_LESSONS = 'create_lessons';
+    case EDIT_LESSONS = 'edit_lessons';
+    case DELETE_LESSONS = 'delete_lessons';
+    case COMPLETE_LESSONS = 'complete_lessons';
+
+    // Report permissions
+    case VIEW_REPORTS = 'view_reports';
+    case EXPORT_REPORTS = 'export_reports';
+    case GENERATE_ANALYTICS = 'generate_analytics';
+
     public function label(): string
     {
         return str_replace('_', ' ', strtolower($this->name));
@@ -95,5 +138,54 @@ enum Permission: string
             ],
             // ... add other groups
         ];
+    }
+
+    public function description(): string
+    {
+        return match($this) {
+            // Admin descriptions
+            self::SHOW_ADMINS => 'View administrator details',
+            self::CREATE_ADMINS => 'Create new administrators',
+            self::EDIT_ADMINS => 'Edit administrator details',
+            self::DELETE_ADMINS => 'Delete administrators',
+
+            // Teacher descriptions
+            self::VIEW_TEACHERS => 'View teacher profiles',
+            self::CREATE_TEACHERS => 'Create new teacher profiles',
+            self::EDIT_TEACHERS => 'Edit teacher profiles',
+            self::DELETE_TEACHERS => 'Delete teacher profiles',
+
+            // Course descriptions
+            self::VIEW_COURSES => 'View course details',
+            self::CREATE_COURSES => 'Create new courses',
+            self::EDIT_COURSES => 'Edit course details',
+            self::DELETE_COURSES => 'Delete courses',
+            self::PUBLISH_COURSES => 'Publish or unpublish courses',
+
+            // Enrollment descriptions
+            self::VIEW_ENROLLMENTS => 'View course enrollments',
+            self::CREATE_ENROLLMENTS => 'Create course enrollments',
+            self::CANCEL_ENROLLMENTS => 'Cancel course enrollments',
+            self::REFUND_ENROLLMENTS => 'Process enrollment refunds',
+
+            // Rating descriptions
+            self::VIEW_RATINGS => 'View course ratings',
+            self::CREATE_RATINGS => 'Create course ratings',
+            self::EDIT_RATINGS => 'Edit course ratings',
+            self::DELETE_RATINGS => 'Delete course ratings',
+            self::REPLY_TO_RATINGS => 'Reply to course ratings',
+
+            // Lesson descriptions
+            self::VIEW_LESSONS => 'View course lessons',
+            self::CREATE_LESSONS => 'Create course lessons',
+            self::EDIT_LESSONS => 'Edit course lessons',
+            self::DELETE_LESSONS => 'Delete course lessons',
+            self::COMPLETE_LESSONS => 'Mark lessons as completed',
+
+            // Report descriptions
+            self::VIEW_REPORTS => 'View system reports',
+            self::EXPORT_REPORTS => 'Export system reports',
+            self::GENERATE_ANALYTICS => 'Generate system analytics',
+        };
     }
 } 
