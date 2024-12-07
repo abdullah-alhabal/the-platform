@@ -91,4 +91,4 @@ trait HasPermissions
         $this->load('roles');
         return $this;
     }
-} 
+}

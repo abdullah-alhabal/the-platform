@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Course;
+namespace App\Http\Requests\Api\V1\Admin\Course;
 
 use App\Domain\Course\DTOs\Course\CreateCourseDto;
 use App\Domain\Course\Enums\CourseLevel;
@@ -63,4 +63,4 @@ class CreateCourseRequest extends FormRequest
     {
         return CreateCourseDto::fromArray($this->validated());
     }
-} 
+}

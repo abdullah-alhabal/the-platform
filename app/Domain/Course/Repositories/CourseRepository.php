@@ -2,6 +2,9 @@
 
 namespace App\Domain\Course\Repositories;
 
+use App\Domain\Course\DTOs\Course\CourseStatisticsDto;
+use App\Domain\Course\DTOs\Course\GetAllCoursesFilterDto;
+use App\Domain\Course\DTOs\Course\SearchCourseFiltersDto;
 use App\Domain\Course\Interfaces\CourseRepositoryInterface;
 use App\Domain\Course\Models\Course;
 use Illuminate\Cache\Repository as Cache;
@@ -15,63 +18,63 @@ class CourseRepository implements CourseRepositoryInterface
         private readonly Cache $cache
     ) {}
 
-    public function getAll(array $filters = []): LengthAwarePaginator
+    public function getAllCourses(GetAllCoursesFilterDto $filters): LengthAwarePaginator
     {
         $query = $this->model->with(['teacher', 'sections.lessons']);
 
-        if (isset($filters['level'])) {
-            $query->where('level', $filters['level']);
+        if ($filters->level) {
+            $query->where('level', $filters->level);
         }
 
-        if (isset($filters['teacher_id'])) {
-            $query->where('teacher_id', $filters['teacher_id']);
+        if ($filters->teacherId) {
+            $query->where('teacher_id', $filters->teacherId);
         }
 
-        if (isset($filters['is_published'])) {
-            $query->where('is_published', $filters['is_published']);
+        if ($filters->isPublished !== null) {
+            $query->where('is_published', $filters->isPublished);
         }
 
-        if (isset($filters['price_min'])) {
-            $query->where('price', '>=', $filters['price_min']);
+        if ($filters->priceMin !== null) {
+            $query->where('price', '>=', $filters->priceMin);
         }
 
-        if (isset($filters['price_max'])) {
-            $query->where('price', '<=', $filters['price_max']);
+        if ($filters->priceMax !== null) {
+            $query->where('price', '<=', $filters->priceMax);
         }
 
         return $query->latest()->paginate(15);
     }
 
-    public function findById(int $id): ?Course
+    public function findCourseById(int $id): ?Course
     {
         return $this->cache->remember("course.{$id}", 3600, function () use ($id): ?Course {
             return $this->model->with(['teacher', 'sections.lessons'])->find($id);
         });
     }
 
-    public function findBySlug(string $slug): ?Course
+    public function findCourseBySlug(string $slug): ?Course
     {
         return $this->cache->remember("course.slug.{$slug}", 3600, function () use ($slug): ?Course {
             return $this->model->with(['teacher', 'sections.lessons'])->where('slug', $slug)->first();
         });
     }
 
-    public function create(array $data): Course
+    public function createCourse(array $data): Course
     {
         return $this->model->create($data);
     }
 
-    public function update(Course $course, array $data): bool
+    public function updateCourse(Course $course, array $data): bool
     {
         return $course->update($data);
     }
 
-    public function delete(Course $course): bool
+    public function deleteCourse(Course $course): bool
     {
         return $course->delete();
     }
 
-    public function getFeatured(int $limit = 6): Collection
+    public function getFeaturedCourses(int $limit = 6): Collection
     {
         return $this->cache->remember("courses.featured.{$limit}", 3600, function () use ($limit): Collection {
             return $this->model->with('teacher')
@@ -82,17 +85,19 @@ class CourseRepository implements CourseRepositoryInterface
         });
     }
 
-    public function getCourseStats(Course $course): array
+    public function getCourseStatistics(Course $course): CourseStatisticsDto
     {
-        return $this->cache->remember("course.{$course->id}.stats", 3600, function () use ($course): array {
+        $stats = $this->cache->remember("course.{$course->id}.stats", 3600, function () use ($course) {
             return [
                 'total_students' => $course->enrollments()->count(),
-                'total_lessons' => $course->lessons()->count(),
-                'total_duration' => $course->lessons()->sum('duration'),
-                'average_rating' => $course->ratings()->avg('rating'),
+                'total_lessons' => $course->sections()->withCount('lessons')->get()->sum('lessons_count'),
+                'total_duration' => $course->sections()->with('lessons')->get()->flatMap(fn($section) => $section->lessons)->sum('duration'),
+                'average_rating' => $course->ratings()->avg('rating') ?? 0.0,
                 'total_ratings' => $course->ratings()->count(),
             ];
         });
+
+        return CourseStatisticsDto::fromArray($stats);
     }
 
     public function getCourseSections(Course $course): Collection
@@ -112,7 +117,7 @@ class CourseRepository implements CourseRepositoryInterface
             ->paginate(10);
     }
 
-    public function search(string $query, array $filters = []): LengthAwarePaginator
+    public function searchCourse(string $query, SearchCourseFiltersDto $filters): LengthAwarePaginator
     {
         $courseQuery = $this->model->with(['teacher', 'sections'])
             ->where(function ($q) use ($query) {
@@ -120,24 +125,24 @@ class CourseRepository implements CourseRepositoryInterface
                     ->orWhere('description', 'like', "%{$query}%");
             });
 
-        if (isset($filters['level'])) {
-            $courseQuery->where('level', $filters['level']);
+        if ($filters->level) {
+            $courseQuery->where('level', $filters->level);
         }
 
-        if (isset($filters['teacher_id'])) {
-            $courseQuery->where('teacher_id', $filters['teacher_id']);
+        if ($filters->teacherId) {
+            $courseQuery->where('teacher_id', $filters->teacherId);
         }
 
-        if (isset($filters['is_published'])) {
-            $courseQuery->where('is_published', $filters['is_published']);
+        if (!is_null($filters->isPublished)) {
+            $courseQuery->where('is_published', $filters->isPublished);
         }
 
-        if (isset($filters['price_min'])) {
-            $courseQuery->where('price', '>=', $filters['price_min']);
+        if ($filters->priceMin) {
+            $courseQuery->where('price', '>=', $filters->priceMin);
         }
 
-        if (isset($filters['price_max'])) {
-            $courseQuery->where('price', '<=', $filters['price_max']);
+        if ($filters->priceMax) {
+            $courseQuery->where('price', '<=', $filters->priceMax);
         }
 
         return $courseQuery->latest()->paginate(15);

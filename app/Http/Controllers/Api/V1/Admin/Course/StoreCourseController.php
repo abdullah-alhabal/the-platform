@@ -26,4 +26,4 @@ class StoreCourseController extends BaseApiV1Controller
             'Course created successfully'
         );
     }
-} 
+}

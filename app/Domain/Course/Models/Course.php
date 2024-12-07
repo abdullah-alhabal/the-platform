@@ -3,6 +3,7 @@
 namespace App\Domain\Course\Models;
 
 use App\Domain\Course\Enums\CourseLevel;
+use App\Domain\Identity\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,22 +31,44 @@ class Course extends Model
         'is_featured',
         'is_published',
         'published_at',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'updates_count',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-        'discount_price' => 'decimal:2',
-        'level' => CourseLevel::class,
-        'is_featured' => 'boolean',
-        'is_published' => 'boolean',
-        'published_at' => 'datetime',
-        'requirements' => 'array',
-        'objectives' => 'array',
-    ];
+    public function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'discount_price' => 'decimal:2',
+            'level' => CourseLevel::class,
+            'is_featured' => 'boolean',
+            'is_published' => 'boolean',
+            'published_at' => 'datetime',
+            'requirements' => 'array',
+            'objectives' => 'array',
+        ];
+    }
 
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     public function sections(): HasMany

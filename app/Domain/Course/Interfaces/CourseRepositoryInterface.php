@@ -2,21 +2,34 @@
 
 namespace App\Domain\Course\Interfaces;
 
+use App\Domain\Course\DTOs\Course\CourseStatisticsDto;
+use App\Domain\Course\DTOs\Course\GetAllCoursesFilterDto;
+use App\Domain\Course\DTOs\Course\SearchCourseFiltersDto;
 use App\Domain\Course\Models\Course;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface CourseRepositoryInterface
 {
-    public function findById(int $id): ?Course;
-    public function findBySlug(string $slug): ?Course;
-    public function getAll(array $filters = [], int $perPage = 15): LengthAwarePaginator;
-    public function getFeatured(int $limit = 6): Collection;
-    public function getByTeacher(int $teacherId, array $filters = [], int $perPage = 15): LengthAwarePaginator;
-    public function create(array $data): Course;
-    public function update(Course $course, array $data): bool;
-    public function delete(Course $course): bool;
-    public function getRelated(Course $course, int $limit = 3): Collection;
-    public function incrementViews(Course $course): void;
-    public function updatePublishStatus(Course $course, bool $status): bool;
+    public function getAllCourses(GetAllCoursesFilterDto $filters): LengthAwarePaginator;
+
+    public function findCourseById(int $id): ?Course;
+
+    public function findCourseBySlug(string $slug): ?Course;
+
+    public function createCourse(array $data): Course;
+
+    public function updateCourse(Course $course, array $data): bool;
+
+    public function deleteCourse(Course $course): bool;
+
+    public function getFeaturedCourses(int $limit = 6): Collection;
+
+    public function getCourseStatistics(Course $course): CourseStatisticsDto;
+
+    public function getCourseSections(Course $course): Collection;
+
+    public function getCourseRatings(Course $course): LengthAwarePaginator;
+
+    public function searchCourse(string $query, SearchCourseFiltersDto $filters): LengthAwarePaginator;
 }

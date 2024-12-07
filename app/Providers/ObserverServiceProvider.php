@@ -15,5 +15,6 @@ final class ObserverServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Country::observe(CountryObserver::class);
+        Course::observe(CourseObserver::class);
     }
 }

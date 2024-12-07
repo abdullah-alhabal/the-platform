@@ -18,4 +18,4 @@ enum CourseLevel: string
             self::EXPERT => 'Expert',
         };
     }
-} 
+}

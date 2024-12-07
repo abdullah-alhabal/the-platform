@@ -99,4 +99,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->isAdmin() && $this->admin?->is_super_admin;
     }
-} 
+}

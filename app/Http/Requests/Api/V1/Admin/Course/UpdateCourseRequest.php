@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Course;
+namespace App\Http\Requests\Api\V1\Admin\Course;
 
 use App\Domain\Course\DTOs\Course\UpdateCourseDto;
 use App\Domain\Course\Enums\CourseLevel;
@@ -57,4 +57,4 @@ class UpdateCourseRequest extends FormRequest
     {
         return UpdateCourseDto::fromArray($this->validated());
     }
-} 
+}

@@ -73,4 +73,4 @@ class CourseDTO
 
         return $data;
     }
-} 
+}

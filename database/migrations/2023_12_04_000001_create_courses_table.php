@@ -26,6 +26,13 @@ return new class extends Migration
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_published')->default(false);
             $table->timestamp('published_at')->nullable();
+
+            // auditing fields
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedInteger('updates_count')->default(0); // Track update count
+
             $table->timestamps();
             $table->softDeletes();
         });
@@ -35,4 +42,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('courses');
     }
-}; 
+};
